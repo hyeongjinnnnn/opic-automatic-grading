@@ -1,0 +1,23 @@
+.container {
+    text-align: center;
+    margin-top: 100px;
+}
+
+button {
+    font-size: 16px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+#volumeMeter {
+    width: 300px;
+    height: 20px;
+    background-color: #f0f0f0;
+    margin: 20px auto;
+}
+
+#volumeValue {
+    height: 100%;
+    background-color: #3498db;
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='question_page.css') }}">
+</head>
+<body>
+<div class="container">
+    <h2 >Question {{question_page_number}}</h2 >
+    <button id="questionListen">Question Listen</button> 
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording">Next</button>
+    <div id="volumeMeter">
+        <div id="volumeValue"></div>
+    </div>
+</div>
+<script src="{{ url_for('static',filename='question_page.js') }}"></script>
+</body>
+</html>
