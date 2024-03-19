@@ -88,7 +88,8 @@ function saveRecording() {
             throw new Error('Failed to save recording');
         }
         console.log('Recording saved successfully!');
-        window.location.href = '/transcript'; 
+        window.location.href = '/transcript';
+        window.location.href = '/question_page_next'
     })
     .catch(error => {
         console.error('Error saving recording:', error);
