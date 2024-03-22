@@ -12,7 +12,8 @@ from transformers import (
 )
 import threading
 from transformers import RobertaForSequenceClassification, RobertaTokenizer
-
+from queue import Queue
+import time
 # from celery import Celery
 
 app = Flask(__name__)
@@ -50,22 +51,24 @@ whisper_pipe = pipeline(
     device=device,
 )
 
+task_queue = Queue() # Queue containing question_page_number to be transcribed 
+
 transcript_list = {}
-transcript_list[2] = "two"
-transcript_list[1] = "one"
-transcript_list[3] = "three"
-transcript_list[5] = "five"
-transcript_list[4] = "four"
-transcript_list[6] = "six"
-transcript_list[7] = "seven"
-transcript_list[8] = "eight"
-transcript_list[9] = "nine"
-transcript_list[11] = "eleven"
-transcript_list[10] = "ten"
-transcript_list[12] = "twelve"
-transcript_list[13] = "thirteen"
-transcript_list[14] = "fourteen"
-question_page_number = 15
+# transcript_list[2] = "two"
+# transcript_list[1] = "one"
+# transcript_list[3] = "three"
+# transcript_list[5] = "five"
+# transcript_list[4] = "four"
+# transcript_list[6] = "six"
+# transcript_list[7] = "seven"
+# transcript_list[8] = "eight"
+# transcript_list[9] = "nine"
+# transcript_list[11] = "eleven"
+# transcript_list[10] = "ten"
+# transcript_list[12] = "twelve"
+# transcript_list[13] = "thirteen"
+# transcript_list[14] = "fourteen"
+question_page_number = 1
 question_list = [
     'Can you introduce yourself in as much detail as possible?',
     'You indicated that you are a student. What are some factors that you consider when choosing a class? Try to be as specific as possible.',
@@ -95,6 +98,24 @@ score_list = []
 
 @app.route('/')
 def index():
+    # thread background 작업
+    def backgroundTask():
+        while True:
+            question_page_number_ = task_queue.get()
+            audio_file = f'records/record{question_page_number_}.wav'
+            result = whisper_pipe(audio_file, generate_kwargs={"language": "english"})
+            transcript_list[question_page_number_] = result["text"]
+            for key, value in transcript_list.items():
+                print(key, value)
+
+            if len(transcript_list) == 15:
+                break
+            
+    def startBackgroundTask():
+        thread = threading.Thread(target=backgroundTask, args=())
+        thread.start()
+
+    startBackgroundTask()
     return render_template("question_page.html", question_page_number = question_page_number)
 
 @app.route('/get_question')
@@ -124,25 +145,11 @@ def save_recording():
     
 @app.route('/transcript')
 def transcript():
-    # thread background 작업
-    def backgroundTask(audio_file, question_page_number):
-        result = whisper_pipe(audio_file, generate_kwargs={"language": "english"})
-        transcript_list[question_page_number] = result["text"]
-        for key, value in transcript_list.items():
-            print(key, value)
-
-    def startBackgroundTask(audio_file, question_page_number):
-        thread = threading.Thread(target=backgroundTask, args=(audio_file, question_page_number,))
-        thread.start()
-
     try:
-        audio_file = f'records/record{question_page_number}.wav'
-        startBackgroundTask(audio_file, question_page_number)
-        # Celery 백그라운드 실행
-        # backgroundTask.delay(audio_file, question_page_number)
-        return 'transcript successfully!', 200
+        task_queue.put(question_page_number)
+        return jsonify({'message': 'task_queue saved successfully!'}), 200
     except Exception as e:
-        return f'Error transcript: {e}', 500
+        return jsonify({'error': f'Error saving recording: {e}'}), 500
 
 @app.route('/grading')
 def grading():

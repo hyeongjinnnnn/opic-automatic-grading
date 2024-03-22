@@ -88,8 +88,19 @@ function saveRecording() {
             throw new Error('Failed to save recording');
         }
         console.log('Recording saved successfully!');
-        window.location.href = '/transcript';
-        window.location.href = '/question_page_next'
+        // `/save_recording` 성공 후 `/transcript` 요청
+        return fetch('/transcript');
+
+        // window.location.href = '/transcript';
+        // window.location.href = '/question_page_next';
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save recording');
+        }
+        console.log('Transcript informaition send successfully!');
+        // /transcript 성공 후 /question_page_next로 이동
+        window.location.href = '/question_page_next';
     })
     .catch(error => {
         console.error('Error saving recording:', error);
