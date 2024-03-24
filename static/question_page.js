@@ -100,7 +100,7 @@ function saveRecording() {
         }
         console.log('Transcript informaition send successfully!');
         // /transcript 성공 후 /question_page_next로 이동
-        window.location.href = '/question_page_next';
+        window.location.href = '/question_page';
     })
     .catch(error => {
         console.error('Error saving recording:', error);

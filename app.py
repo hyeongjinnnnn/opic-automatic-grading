@@ -14,20 +14,9 @@ import threading
 from transformers import RobertaForSequenceClassification, RobertaTokenizer
 from queue import Queue
 import time
-# from celery import Celery
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './records'
-# app.config.update(
-#     CELERY_BROKER_URL='redis://localhost:6379',
-#     CELERY_RESULT_BACKEND='redis://localhost:6379'
-# )
-
-# celery로 전사
-
-# BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-# celery = Celery(app.name, broker=BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 device = "cpu"
 torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -54,47 +43,25 @@ whisper_pipe = pipeline(
 task_queue = Queue() # Queue containing question_page_number to be transcribed 
 
 transcript_list = {}
-# transcript_list[2] = "two"
-# transcript_list[1] = "one"
-# transcript_list[3] = "three"
-# transcript_list[5] = "five"
-# transcript_list[4] = "four"
-# transcript_list[6] = "six"
-# transcript_list[7] = "seven"
-# transcript_list[8] = "eight"
-# transcript_list[9] = "nine"
-# transcript_list[11] = "eleven"
-# transcript_list[10] = "ten"
-# transcript_list[12] = "twelve"
-# transcript_list[13] = "thirteen"
-# transcript_list[14] = "fourteen"
-question_page_number = 1
-question_list = [
-    'Can you introduce yourself in as much detail as possible?',
-    'You indicated that you are a student. What are some factors that you consider when choosing a class? Try to be as specific as possible.',
-    'You need to submit a report by this weekend and you only have three days left to complete it. Unfortunately, you became extremely sick and are unable to finish the report on time. Call the professor and explain your situation so that you can get an extension.',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-    'Can you introduce yourself in as much detail as possible?',
-]
-score_list = []
 
-# @celery.task()
-# def backgroundTask(audio_file, question_page_number):
-#     with app.app_context():
-#         result = whisper_pipe(audio_file, generate_kwargs={"language": "english"})
-#         transcript_list[question_page_number] = result["text"]
-#         for key, value in transcript_list.items():
-#             print(key, value)
+question_page_number = 1
+question_list = ["You need to submit a report by this weekend and you only have three days left to complete it. Unfortunately, you became extremely sick and are unable to finish the report on time. Call the professor and explain your situation so that you can get an extension.",
+                 "You indicated that you are a student. What are some factors that you consider when choosing a class? Try to be as specific as possible.",
+                 "What was one of the most difficult projects or homework assignments that you have ever done for a class? Why was it difficult for you? Please explain the project or homework assignment in detail.",
+                 "You need to submit a report by this weekend and you only have three days left to complete it. Unfortunately, you became extremely sick and are unable to finish the report on time. Call the professor and explain your situation so that you can get an extension.",
+                 "Please describe a common space that you share with your roommate at home. What kind of furniture or home appliances are there? What is the layout of the place? Please use as much detail as possible.",
+                 "When we live with other people, we tend to experience some difficulties. Tell me about a disagreement you had with your roommate. What was the situation and how did it start? How did you resolve the situation with your roommate?",
+                 "Your roommate says that she/he wants to bring her/his family dog to the house that you are currently living in. Unfortunately, you do not want to live with a pet. Give your roommate three reasons why the dog cannot live in the house.",
+                 "Which city in the world would you currently like to visit the most? Why did you choose that city? What does it look like? What kind of places do you want to visit there? Please describe in detail why you want to visit this city.",
+                 "Tell me about a difficult situation that you experienced while you were traveling. What exactly happened? How did you solve the problem? Describe the experience in detail.",
+                 "You booked a hotel and when you arrived at the hotel the manager said that there were no reservations under your name. Please explain your situation to the manager in order to reserve the room.",
+                 "What type of bar do you want to visit? What is the decor or mood like? What kind of drinks are they selling? Imagine and describe the bar that you want to visit in detail.",
+                 "You went to a bar, but you don’t know anything about their drinks menu. Please ask the bartender three questions about the signature drink.",
+                 "Your friend is having a birthday party at a bar. However, a mutual friend called you to ask that you make an excuse for them for being late for the party. Please explain the situation to the host of the party and give two excuses for your friend’s tardiness.",
+                 "There are so many illegal students and other foreign visitors who stayed on in Korea after the outbreak of Covid-19. A lot of these people stay in Korea illegally instead of going back to their home countries. Why do you think this is happening?",
+                 "In this situation, do you think the government has to intervene and manage the situation? Why or why not? Please elaborate on your ideas.",
+                 ]
+score_list = []
 
 @app.route('/')
 def index():
@@ -119,7 +86,7 @@ def index():
     return render_template("question_page.html", question_page_number = question_page_number)
 
 @app.route('/get_question')
-def get_text():
+def get_question():
     text = question_list[question_page_number - 1]
     return jsonify({'text': text})
 
@@ -208,7 +175,7 @@ def grading():
     return render_template("show_score_page.html", score_list = score_list)
 
 
-@app.route('/question_page_next')
+@app.route('/question_page')
 def question_page_next():
     global question_page_number
     question_page_number += 1
