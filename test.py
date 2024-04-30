@@ -52,6 +52,8 @@ connection = mysql.connector.connect(
 task_queue = Queue() # Queue containing question_page_number to be transcribed 
 transcript_list = {}
 question_list = [0 for i in range(15)]
+for i in range(1, 16):
+    transcript_list[i] = 'Hi'
 question_page_number = 1
 score_list = []
 # 설문지 내용
@@ -147,43 +149,56 @@ def grading():
 
     def predict(criteria, text, models_and_tokenizers):
         model, tokenizer = models_and_tokenizers[criteria]
-    
-        # 텍스트를 토크나이징하여 모델 입력 형식으로 변환
         inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding="max_length")
-    
-        # GPU 사용 가능 여부 확인
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model.to(device)
         inputs = {k: v.to(device) for k, v in inputs.items()}
-    
-        # 예측 수행
+
         with torch.no_grad():
             outputs = model(**inputs)
-            logits = outputs.logits
-            # probabilities = torch.softmax(logits, dim=1)
-    
-        # return probabilities
-        return logits
-    
+            predictions = outputs.logits.squeeze().item()
+
+        rounded_predictions = round(predictions, 2)
+        return rounded_predictions
+
+    question_num = 0
+    # scores_summary = {f"Q{idx}_{criteria}": [] for idx, criteria in enumerate(models_paths.keys())}
+    scores_summary = {criteria: [] for criteria in models_paths.keys()}
     sorted_transcript_list = [transcript_list[key] for key in sorted(transcript_list.keys())]
-    # 각 평가 항목별로 예측 수행
+
     for question, transcript in zip(question_list, sorted_transcript_list):
-        a = f"question : {question}  \n\n answer : {transcript}"
-        scores = {}
-        # 각 평가 항목에 대해 점수 예측
+        text = f"question : {question}  \n\n answer : {transcript}"
+
+        question_scores = []
+        question_num += 1
         for criteria in models_paths.keys():
-            print(a)
-            score = predict(criteria, a, models_and_tokenizers)
-            scores[criteria] = score
-            print(f"{criteria}: {score}")
-            
-        print('\n\n\n')
-        score_list.append(scores)
+        # for criteria in scores_summary.keys():
+            score = predict(criteria, text, models_and_tokenizers)
+            question_scores.append(score)
+            scores_summary[criteria].append(score)
+            # print(f"{criteria}: {score}")
 
-    for s in score_list:
-        print(s)
+        question_average = sum(question_scores) / len(question_scores)
+        print(f"질문 {question}에 대한 평균 점수: {question_average}")
 
-    return render_template("show_score_page.html", score_list = score_list)
+    criteria_averages = {criteria: sum(scores) / len(scores) for criteria, scores in scores_summary.items()}
+    total_average_score = sum(criteria_averages.values()) / len(criteria_averages)
+
+    print(f"총 평균 점수: {total_average_score}")
+
+    if total_average_score >= 4.5: 
+        grade = "AL"
+    elif 3.5 <= total_average_score < 4.5:
+        grade = "IH"
+    elif 2.5 <= total_average_score < 3.5:
+        grade = "IM"
+    elif 1.5 <= total_average_score < 2.5:
+        grade = "IL"
+    else:
+        grade = "NH"
+
+    return render_template("show_score_page.html", grade = grade)
 
 @app.route('/question_page', methods=['GET', 'POST'])
 def question_page():
