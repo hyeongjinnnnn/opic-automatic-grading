@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import mysql.connector
 import random
 import os
@@ -17,6 +17,7 @@ from transformers import RobertaForSequenceClassification, RobertaTokenizer
 from queue import Queue
 
 app = Flask(__name__)
+app.secret_key = "ABCD"
 
 app.config['UPLOAD_FOLDER'] = './records'
 
@@ -51,10 +52,9 @@ connection = mysql.connector.connect(
 
 task_queue = Queue() # Queue containing question_page_number to be transcribed 
 transcript_list = {}
+
 question_list = [0 for i in range(15)]
-for i in range(1, 16):
-    transcript_list[i] = 'Hi'
-question_page_number = 1
+
 score_list = []
 # 설문지 내용
 # 1 = '종사 분야' 
@@ -74,6 +74,12 @@ selected_options = {}  # 각 분야별 선택 옵션 저장 딕셔너리
 
 @app.route('/')
 def index():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form['username']
+    session['username'] = username
     return render_template('start_page.html')
 
 @app.route('/background_start')
@@ -96,11 +102,12 @@ def background_start():
         thread.start()
 
     startBackgroundTask()
-    return render_template("question_page.html", question_page_number = question_page_number)
+    session['question_page_number'] = 1
+    return render_template("question_page.html", question_page_number = session['question_page_number'])
 
 @app.route('/get_question')
 def get_text():
-    text = question_list[question_page_number - 1]
+    text = question_list[session['question_page_number'] - 1]
     return jsonify({'text': text})
 
 @app.route('/get_transcriptListLength')
@@ -117,7 +124,7 @@ def get_ScoreListLength():
 def save_recording():
     try:
         file = request.files['audio_file']
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], f'record{question_page_number}.wav'))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], f'record{session['question_page_number']}.wav'))
 
         return 'Recording saved successfully!', 200
     except Exception as e:
@@ -126,7 +133,7 @@ def save_recording():
 @app.route('/transcript')
 def transcript():
     try:
-        task_queue.put(question_page_number)
+        task_queue.put(session['question_page_number'])
         return jsonify({'message': 'task_queue saved successfully!'}), 200
     except Exception as e:
         return jsonify({'error': f'Error saving recording: {e}'}), 500
@@ -145,6 +152,7 @@ def grading():
         "Appropriateness": "model/Appropriateness"
     }
 
+    cursor = connection.cursor()
     models_and_tokenizers = {criteria: load_model_and_tokenizer(path) for criteria, path in models_paths.items()}
 
     def predict(criteria, text, models_and_tokenizers):
@@ -181,7 +189,9 @@ def grading():
 
         question_average = sum(question_scores) / len(question_scores)
         print(f"질문 {question}에 대한 평균 점수: {question_average}")
-
+        insert_query = "INSERT INTO answer (username, question_number, question_text, answer_text, score) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insert_query, (session['username'], question_num, question, transcript, question_average))
+    
     criteria_averages = {criteria: sum(scores) / len(scores) for criteria, scores in scores_summary.items()}
     total_average_score = sum(criteria_averages.values()) / len(criteria_averages)
 
@@ -198,14 +208,16 @@ def grading():
     else:
         grade = "NH"
 
+    insert_grade_query = "INSERT INTO grade (username, grade) VALUES (%s, %s)"
+    cursor.execute(insert_grade_query, (session['username'], grade))
+    connection.commit()
     return render_template("show_score_page.html", grade = grade)
 
 @app.route('/question_page', methods=['GET', 'POST'])
 def question_page():
-    global question_page_number
-    question_page_number += 1
-    if question_page_number < 16:
-        return render_template("question_page.html", question_page_number = question_page_number)
+    session['question_page_number'] += 1
+    if session['question_page_number'] < 16:
+        return render_template("question_page.html", question_page_number = session['question_page_number'])
     else:
         return render_template("processing_score_page.html")
 
