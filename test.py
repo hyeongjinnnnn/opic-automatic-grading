@@ -52,10 +52,9 @@ connection = mysql.connector.connect(
 
 task_queue = Queue() # Queue containing question_page_number to be transcribed 
 transcript_list = {}
-
+selected_options = {}  # 각 분야별 선택 옵션 저장 딕셔너리
 question_list = [0 for i in range(15)]
 
-score_list = []
 # 설문지 내용
 # 1 = '종사 분야' 
 # 2 = '거주 방식' 
@@ -65,12 +64,12 @@ survey_questions = {
     2: "현재 귀하는 어디에 살고 계십니까?",
     3: "귀하는 여가 및 취미활동으로 주로 무엇을 하십니까? (두 개 이상 선택)",
 }
+
 survey_options = {
     1: ["사업자/직장인", "학생", "취업준비생"],
     2: ["개인주택이나 아파트에 홀로 거주", "친구나 룸메이트와 함께 주택이나 아파트에 거주", "가족과 함께 주택이나 아파트에 거주"],
     3: ["운동", "게임", "SNS", "문화생활", "여행", "자기관리", "예술활동", "자기개발"],
 }
-selected_options = {}  # 각 분야별 선택 옵션 저장 딕셔너리
 
 @app.route('/')
 def index():
@@ -81,6 +80,76 @@ def login():
     username = request.form['username']
     session['username'] = username
     return render_template('start_page.html')
+
+@app.route('/survey', methods=['GET', 'POST'])
+def survey():
+    global selected_options
+    next_page = 1
+
+    if request.method == 'POST':
+        survey_page = int(request.form.get('survey-page'))
+        next_page_direction = request.form.get('next-page-direction')
+
+        if next_page_direction == 'next':
+            next_page = survey_page + 1
+        else: # next_page_direction == 'back'
+            next_page = survey_page - 1
+
+        if survey_page == 3:
+            selected_options[survey_page] = request.form.getlist('option')
+        else:
+            selected_options[survey_page] = request.form.get('option')
+
+        if next_page == 4:
+            global question_list
+            print(selected_options)
+            cursor = connection.cursor()
+            index = 0
+            question_list[index] = "Can you introduce yourself in as much detail as possible?"
+            index += 1
+
+            query = "SELECT question_text FROM question WHERE property = %s AND link = %s"
+            option_value = selected_options.get(1) # 종사 분야
+            for i in range(3):
+                cursor.execute(query, (option_value, i))
+                question_list[index] = cursor.fetchone()[0]
+                index += 1
+
+            option_value = selected_options.get(2) # 거주 방식
+            for i in range(3):
+                cursor.execute(query, (option_value, i))
+                question_list[index] = cursor.fetchone()[0]
+                index += 1
+
+            option_value = random.choice(selected_options.get(3)) # 여가 및 취미
+            for i in range(3):
+                cursor.execute(query, (option_value, i))
+                question_list[index] = cursor.fetchone()[0]
+                index += 1
+
+            option_value = random.choice(['롤플레이1', '롤플레이2', '롤플레이3', '롤플레이4'])
+            for i in range(3):
+                cursor.execute(query, (option_value, i))
+                question_list[index] = cursor.fetchone()[0]
+                index += 1
+
+            option_value = random.choice(['돌발질문:코로나', '돌발질문:코인', '돌발질문:출산율'])
+            for i in range(2):
+                cursor.execute(query, (option_value, i))
+                question_list[index] = cursor.fetchone()[0]
+                index += 1
+            for question in question_list:
+                print(question)
+            return redirect(url_for('background_start'))
+
+        print(selected_options)
+
+    return render_template('survey_page.html', 
+                           survey_page=next_page, 
+                           question=survey_questions[next_page], 
+                           options=survey_options[next_page], 
+                           selected_option=selected_options.get(next_page)
+                           )
 
 @app.route('/background_start')
 def background_start():
@@ -105,6 +174,14 @@ def background_start():
     session['question_page_number'] = 1
     return render_template("question_page.html", question_page_number = session['question_page_number'])
 
+@app.route('/question_page', methods=['GET', 'POST'])
+def question_page():
+    session['question_page_number'] += 1
+    if session['question_page_number'] < 16:
+        return render_template("question_page.html", question_page_number = session['question_page_number'])
+    else:
+        return render_template("processing_score_page.html")
+
 @app.route('/get_question')
 def get_text():
     text = question_list[session['question_page_number'] - 1]
@@ -114,11 +191,6 @@ def get_text():
 def get_transcriptListLength():
     transcriptListLength = len(transcript_list)
     return jsonify({'len': transcriptListLength})
-
-@app.route('/get_ScoreListLength')
-def get_ScoreListLength():
-    scoreListLength = len(score_list)
-    return jsonify({'len': scoreListLength})
 
 @app.route('/save_recording', methods=['POST'])
 def save_recording():
@@ -212,84 +284,6 @@ def grading():
     cursor.execute(insert_grade_query, (session['username'], grade))
     connection.commit()
     return render_template("show_score_page.html", grade = grade)
-
-@app.route('/question_page', methods=['GET', 'POST'])
-def question_page():
-    session['question_page_number'] += 1
-    if session['question_page_number'] < 16:
-        return render_template("question_page.html", question_page_number = session['question_page_number'])
-    else:
-        return render_template("processing_score_page.html")
-
-@app.route('/survey', methods=['GET', 'POST'])
-def survey():
-    global selected_options
-    next_page = 1
-
-    if request.method == 'POST':
-        survey_page = int(request.form.get('survey-page'))
-        next_page_direction = request.form.get('next-page-direction')
-
-        if next_page_direction == 'next':
-            next_page = survey_page + 1
-        else: # next_page_direction == 'back'
-            next_page = survey_page - 1
-
-        if survey_page == 3:
-            selected_options[survey_page] = request.form.getlist('option')
-        else:
-            selected_options[survey_page] = request.form.get('option')
-
-        if next_page == 4:
-            global question_list
-            print(selected_options)
-            cursor = connection.cursor()
-            index = 0
-            question_list[index] = "Can you introduce yourself in as much detail as possible?"
-            index += 1
-
-            query = "SELECT question_text FROM question WHERE property = %s AND link = %s"
-            option_value = selected_options.get(1) # 종사 분야
-            for i in range(3):
-                cursor.execute(query, (option_value, i))
-                question_list[index] = cursor.fetchone()[0]
-                index += 1
-
-            option_value = selected_options.get(2) # 거주 방식
-            for i in range(3):
-                cursor.execute(query, (option_value, i))
-                question_list[index] = cursor.fetchone()[0]
-                index += 1
-
-            option_value = random.choice(selected_options.get(3)) # 여가 및 취미
-            for i in range(3):
-                cursor.execute(query, (option_value, i))
-                question_list[index] = cursor.fetchone()[0]
-                index += 1
-
-            option_value = random.choice(['롤플레이1', '롤플레이2', '롤플레이3', '롤플레이4'])
-            for i in range(3):
-                cursor.execute(query, (option_value, i))
-                question_list[index] = cursor.fetchone()[0]
-                index += 1
-
-            option_value = random.choice(['돌발질문:코로나', '돌발질문:코인', '돌발질문:출산율'])
-            for i in range(2):
-                cursor.execute(query, (option_value, i))
-                question_list[index] = cursor.fetchone()[0]
-                index += 1
-            for question in question_list:
-                print(question)
-            return redirect(url_for('background_start'))
-
-        print(selected_options)
-
-    return render_template('survey_page.html', 
-                           survey_page=next_page, 
-                           question=survey_questions[next_page], 
-                           options=survey_options[next_page], 
-                           selected_option=selected_options.get(next_page)
-                           )
 
 if __name__ == '__main__':
     app.run(debug=True)
