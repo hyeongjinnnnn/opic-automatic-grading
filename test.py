@@ -196,7 +196,7 @@ def get_transcriptListLength():
 def save_recording():
     try:
         file = request.files['audio_file']
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], f'record{session['question_page_number']}.wav'))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], f"record{session['question_page_number']}.wav"))
 
         return 'Recording saved successfully!', 200
     except Exception as e:
