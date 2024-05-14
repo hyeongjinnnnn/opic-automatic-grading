@@ -1,0 +1,54 @@
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Pretendard', sans-serif;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -1.5em;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.opic-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: blue;
+    margin: 1em 0;
+}
+
+.content p {
+    font-size: 1.3em;
+}
+
+#next-btn {
+    background-color: orangered;
+    color: white;
+    font-size: 1em;
+    font-weight: 700;
+    border: none;
+    padding: 0.5em 2em;
+    cursor: pointer;
+    margin-top: 3.5em;
+}
