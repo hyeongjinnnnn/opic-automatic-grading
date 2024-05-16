@@ -1,0 +1,128 @@
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Pretendard', sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 30px;
+    color: #222;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    word-break: keep-all;
+    margin: 0;
+    text-align: left;
+    background-color: #fff;
+}
+
+div {
+    display: block;
+}
+
+.content {
+    width: 80%;
+    height: 80%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    max-width: 96.2rem;
+    min-width: 73.8rem;
+    display: flex;
+    flex-direction: column;
+    margin-right: -15px;
+    margin-left: -15px;
+    position: relative;
+}
+
+.content h2.survey-title {
+    margin-top: 1.4rem;
+}
+
+.content p.survey-instruction {
+    margin-top: 1.4rem;
+}
+
+h2.survey-title {
+    border-bottom: 1px solid #ced4da;
+    font-size: 1.29em;
+    font-weight: bold;
+    margin-bottom: 0;
+    padding: 6px 0;
+}
+
+h2 {
+    line-height: 1.2;
+    display: block;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-size: 1.6rem;
+    font-weight: normal;
+    margin-bottom: .5rem;
+    margin-top: 0;
+}
+
+p {
+    margin-bottom: 1rem;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+button {
+    color: #fff;
+    background-color: #f63;
+    border-color: #f63;
+    height: 2.2rem;
+    padding: 0 2rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: 0 2px 1px 0 rgba(0,0,0,0.2);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    outline: none;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+
+button:disabled {
+    cursor: default;
+    opacity: .65;
+}
+
+
+
+/* body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -1.5em;
+} */
