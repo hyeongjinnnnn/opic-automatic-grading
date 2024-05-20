@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Page</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='feedback_page.css') }}">
+</head>
+<body>
+<div class="container">
+    <form id="return-score-form" action="/show_score" method="post">
+        <form>
+            <input type="button" value="back" onclick="history.back()">
+        </form>
+        <h2> 각 문항의 피드백 내용 </h2>
+        <ul>
+            {% for i in range(15) %}
+                <li>
+                    <h3>{{ i + 1 }}번 문항에 대한 피드백</h3><br>
+                    <h4>질문 : {{ questions[i] }}</h4>
+                    <h4>답변 : {{ stt[i] }}</h4>
+                    <p>{{ feedbackOutput[i]|replace('\n', '<br>')|safe }}</p><br><br>
+                </li>
+            {% endfor %}
+        </ul>
+    </form>
+</div>
+</body>
+</html>
