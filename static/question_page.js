@@ -61,7 +61,7 @@ async function startRecording() {
             analyser.getByteFrequencyData(array);
             const average = array.reduce((a, b) => a + b, 0) / array.length;
             const volume = Math.round(average);
-            document.getElementById('volumeValue').style.width = `${volume}px`;
+            document.getElementById('volumeValue').style.height = `${volume * 3}px`;
         };
     } catch (err) {
         console.error('Error starting recording:', err);

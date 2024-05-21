@@ -12,20 +12,38 @@
         <p class="survey-instruction">질문을 읽고 정확히 답변해 주시기 바랍니다. 설문에 대한 응답을 기초로 개인별 문항이 출제됩니다.</p>
         <form id="survey-form" action="/survey" method="post">
             <h2 id="survey-progress">Part {{ survey_page }} of 3</h2>
-            <h3>{{question}}</h3>
+            <p class="survey-question">{{question}}</p>
             {% if survey_page == 3 %}
                 {% for option in options %}
-                    <input type="checkbox" name="option" value="{{ option }}" {% if selected_option and option in selected_option %} checked {% endif %}> {{ option }}<br>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" name="option" value="{{ option }}" {% if selected_option and option in selected_option %} checked {% endif %}>
+                            {{ option }}
+                        </label>
+                    </div>
                 {% endfor %}
             {% else %}
                 {% for option in options %}
-                    <input type="radio" name="option" value="{{ option }}" {% if selected_option == option %} checked {% endif %}> {{ option }}<br>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="option" value="{{ option }}" {% if selected_option == option %} checked {% endif %}>
+                            {{ option }}
+                        </label>
+                    </div>
                 {% endfor %}
             {% endif %}
             <input type="hidden" name="survey-page" value="{{ survey_page }}">
-            <div>
-                <button type="submit" id="back-btn" name="next-page-direction" value="back" {% if survey_page == 1 %} disabled {% endif %}>Back</button>
-                <button type="submit" id="next-btn" name="next-page-direction" value="next" disabled>Next</button>
+            <div class="survey-button">
+                <div class="button-area survey-left">
+                    <button type="submit" id="back-btn" name="next-page-direction" value="back" {% if survey_page == 1 %} disabled {% endif %}>
+                        Back
+                    </button>
+                </div>
+                <div class="button-area survey-right">
+                    <button type="submit" id="next-btn" name="next-page-direction" value="next" disabled>
+                        Next
+                    </button>
+                </div>
             </div>
         </form>
     </div>

@@ -7,22 +7,28 @@
 <link rel="stylesheet" href="{{ url_for('static',filename='feedback_page.css') }}">
 </head>
 <body>
-<div class="container">
+<div class="content">
     <form id="return-score-form" action="/show_score" method="post">
         <form>
-            <input type="button" value="back" onclick="history.back()">
+            <input type="button" value="Back" onclick="history.back()">
         </form>
-        <h2> 각 문항의 피드백 내용 </h2>
-        <ul>
-            {% for i in range(15) %}
-                <li>
-                    <h3>{{ i + 1 }}번 문항에 대한 피드백</h3><br>
-                    <h4>질문 : {{ questions[i] }}</h4>
-                    <h4>답변 : {{ stt[i] }}</h4>
-                    <p>{{ feedbackOutput[i]|replace('\n', '<br>')|safe }}</p><br><br>
-                </li>
-            {% endfor %}
-        </ul>
+        <h2> 1번~15번 피드백 </h2>
+        <div class="feedback-section">
+            <ul>
+                {% for i in range(15) %}
+                    <li>
+                        <h3>{{ i + 1 }}번</h3>
+                        <div class="feedback-qna">
+                            <h4 class="question">Q.  {{ questions[i] }}</h4>
+                            <h4 class="answer">A.  {{ stt[i] }}</h4>
+                        </div>
+                        <div class="feedback-output">
+                            <p>{{ feedbackOutput[i]|replace('\n', '<br>')|safe }}</p><br><br>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </form>
 </div>
 </body>
