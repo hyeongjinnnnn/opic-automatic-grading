@@ -4,53 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        form {
-            width: 300px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        input {
-            margin-bottom: 10px;
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="../static/login.css">
 </head>
 <body>
     <form action="/login" method="POST">
-        <h2>Login</h2>
-        <input type="text" name="studentID" placeholder="student ID" required>
-        <input type="text" name="name" placeholder="name" required>
-        <button type="submit">Login</button>
+        <h2>Oral Proficiency Interview - computer</h2>
+        <div class="group">
+            <label for="studentID">Student ID</label>
+            <input type="text" name="studentID" required>
+        </div>
+        <div class="group">
+            <label for="name">Name</label>
+            <input type="text" name="name" required>
+        </div>
+        <div class="group center">
+            <button type="submit">Login</button>
+        </div>
     </form>
 </body>
 </html>
