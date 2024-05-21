@@ -367,7 +367,7 @@ def grading():
             HumanMessage(
                 content="""
                 [Request]
-                        1. Please briefly write the overall feedback (strengths, weaknesses, directions for improvement, etc.) based on the ratings(1~5) and evaluation rubric.
+                        1. Please briefly write the overall feedback (weaknesses, directions for improvement, etc.) based on the ratings(1~5) and evaluation rubric.
                         2. Please write a detailed feedback (based on your evaluation score and rubric) for each score (up to 3).
                         3. Please write a brief specific advice for achieving the next level.
                         4. Please provide all feedback in Korean
