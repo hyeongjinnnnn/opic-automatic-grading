@@ -24,7 +24,22 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: -1.5em;
+}
+
+.content {
+    height: 80%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    max-width: 96.2rem;
+    min-width: 68rem;
+    display: flex;
+    flex-direction: column;
+    margin-right: -15px;
+    margin-left: -15px;
+    position: relative;
+    margin-top: 3rem;
 }
 
 .text-center {
@@ -42,13 +57,25 @@ body, html {
     font-size: 1.3em;
 }
 
-#next-btn {
-    background-color: orangered;
-    color: white;
-    font-size: 1em;
-    font-weight: 700;
-    border: none;
-    padding: 0.5em 2em;
+#form-next {
+    margin-top: 4em;
+}
+
+button {
+    color: #fff;
+    background-color: #f63;
+    border-color: #f63;
+    height: 2.2rem;
+    padding: 0 2rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: 0 2px 1px 0 rgba(0,0,0,0.2);
     cursor: pointer;
-    margin-top: 3.5em;
+    font-size: 1rem;
+    font-weight: bold;
+    outline: none;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.5;
 }
